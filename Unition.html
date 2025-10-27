@@ -1,0 +1,1840 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unition - Smart Notes</title>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #2563eb;
+            --secondary: #64748b;
+            --accent: #f59e0b;
+            --background: #ffffff;
+            --surface: #f8fafc;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary: #3b82f6;
+            --secondary: #94a3b8;
+            --accent: #fbbf24;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --text: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --border: #334155;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        [data-theme="neon"] {
+            --primary: #00ff88;
+            --secondary: #ff0080;
+            --accent: #ffff00;
+            --background: #000011;
+            --surface: #001122;
+            --text: #00ff88;
+            --text-secondary: #ff0080;
+            --border: #00ff88;
+            --shadow: rgba(0, 255, 136, 0.3);
+        }
+
+        [data-theme="contrast"] {
+            --primary: #000000;
+            --secondary: #666666;
+            --accent: #ff0000;
+            --background: #ffffff;
+            --surface: #f0f0f0;
+            --text: #000000;
+            --text-secondary: #333333;
+            --border: #000000;
+            --shadow: rgba(0, 0, 0, 0.5);
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--background);
+            color: var(--text);
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .logo {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav-menu {
+            padding: 16px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 4px;
+            color: var(--text-secondary);
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--primary);
+            color: white;
+            transform: translateX(4px);
+        }
+
+
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: var(--background);
+        }
+
+        .header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--surface);
+        }
+
+        .search-container {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+            margin-right: 24px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px 12px 48px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--background);
+            color: var(--text);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--shadow);
+        }
+
+        .btn-secondary {
+            background: var(--surface);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .notes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+
+        .note-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .note-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px var(--shadow);
+            border-color: var(--primary);
+        }
+
+        .note-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+
+        .note-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text);
+        }
+
+        .note-preview {
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .note-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .note-actions {
+            display: flex;
+            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .note-card:hover .note-actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 24px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px var(--shadow);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+        }
+
+        .close-btn:hover {
+            background: var(--border);
+            color: var(--text);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--background);
+            color: var(--text);
+            font-size: 16px;
+            transition: all 0.2s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 200px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .ai-analysis {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+        }
+
+        .ai-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-content {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .calendar-widget {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .calendar-day:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        .calendar-day.today {
+            background: var(--accent);
+            color: white;
+            font-weight: 600;
+        }
+
+        .settings-panel {
+            display: none;
+        }
+
+        .settings-panel.active {
+            display: block;
+        }
+
+        .settings-group {
+            margin-bottom: 24px;
+        }
+
+        .settings-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .theme-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 12px;
+        }
+
+        .theme-option {
+            padding: 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+            background: var(--surface);
+        }
+
+        .theme-option.active {
+            border-color: var(--primary);
+            background: var(--primary);
+            color: white;
+        }
+
+        .bin-section {
+            display: none;
+        }
+
+        .bin-section.active {
+            display: block;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                position: absolute;
+                left: -320px;
+                z-index: 100;
+            }
+            
+            .sidebar.open {
+                left: 0;
+            }
+            
+            .notes-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .koenigsegg-accent {
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .floating-action {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px var(--shadow);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .floating-action:hover {
+            transform: scale(1.1) rotate(90deg);
+            box-shadow: 0 8px 30px var(--shadow);
+        }
+    </style>
+</head>
+<body data-theme="light">
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar" id="sidebar">
+            <div class="logo">
+                <div class="logo-icon">U</div>
+                <span class="logo-text">Unition</span>
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-item active" data-view="notes">
+                    <span>📝</span>
+                    <span class="nav-text">Notes</span>
+                </div>
+                <div class="nav-item" data-view="calendar">
+                    <span>📅</span>
+                    <span class="nav-text">Calendar</span>
+                </div>
+
+                <div class="nav-item" data-view="settings">
+                    <span>⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </div>
+            </div>
+
+
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header">
+                <div class="search-container">
+                    <div class="search-icon">🔍</div>
+                    <input type="text" class="search-input" placeholder="Search notes..." id="searchInput">
+                </div>
+                
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="newNoteBtn">
+                        ➕ New Note
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- Notes View -->
+                <div id="notesView" class="view-content">
+                    <!-- Floating AI Analysis Widget -->
+                    <div class="ai-analysis" style="margin-bottom: 20px;">
+                        <div class="ai-title">🤖 AI Real-Time Analysis</div>
+                        <div class="ai-content" id="floatingAiContent">
+                            Welcome to Unition! Create some notes to see your AI-powered productivity insights.
+                        </div>
+                    </div>
+
+                    <div class="notes-grid" id="notesGrid">
+                        <!-- Notes will be dynamically added here -->
+                    </div>
+                    
+                    <div class="empty-state" id="emptyState">
+                        <div class="empty-icon">📝</div>
+                        <h3>No notes yet</h3>
+                        <p>Create your first note to get started with Unition</p>
+                    </div>
+                </div>
+
+                <!-- Calendar View -->
+                <div id="calendarView" class="view-content" style="display: none;">
+                    <div class="calendar-widget">
+                        <div class="calendar-header">
+                            <button class="btn btn-secondary" id="prevMonth">‹</button>
+                            <h3 id="currentMonth">December 2024</h3>
+                            <button class="btn btn-secondary" id="nextMonth">›</button>
+                        </div>
+                        <div class="calendar-grid" id="calendarGrid">
+                            <!-- Calendar days will be generated here -->
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Settings View -->
+                <div id="settingsView" class="view-content" style="display: none;">
+                    <div class="settings-panel active">
+                        <div class="settings-group">
+                            <div class="settings-title">Theme</div>
+                            <div class="theme-selector">
+                                <div class="theme-option active" data-theme="light">
+                                    ☀️ Light
+                                </div>
+                                <div class="theme-option" data-theme="dark">
+                                    🌙 Dark
+                                </div>
+                                <div class="theme-option" data-theme="neon">
+                                    ⚡ Neon
+                                </div>
+                                <div class="theme-option" data-theme="contrast">
+                                    ⚫ Contrast
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="settings-group">
+                            <div class="settings-title">Bin</div>
+                            <button class="btn btn-secondary" id="viewBin">
+                                🗑️ View Deleted Notes
+                            </button>
+                        </div>
+
+                        <div class="settings-group">
+                            <div class="settings-title">Export</div>
+                            <button class="btn btn-primary" id="exportNotes">
+                                💾 Export All Notes
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Bin Section -->
+                    <div class="bin-section" id="binSection">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                            <h2>🗑️ Deleted Notes</h2>
+                            <div>
+                                <button class="btn btn-secondary" id="backToSettings">← Back</button>
+                                <button class="btn" style="background: #dc2626; color: white;" id="emptyBin">Empty Bin</button>
+                            </div>
+                        </div>
+                        <div class="notes-grid" id="binGrid">
+                            <!-- Deleted notes will appear here -->
+                        </div>
+                        <div class="empty-state" id="emptyBinState">
+                            <div class="empty-icon">🗑️</div>
+                            <h3>Bin is empty</h3>
+                            <p>Deleted notes will appear here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New/Edit Note Modal -->
+    <div class="modal" id="noteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modalTitle">New Note</h2>
+                <button class="close-btn" id="closeModal">×</button>
+            </div>
+            
+            <form id="noteForm">
+                <div class="form-group">
+                    <label class="form-label">Title</label>
+                    <input type="text" class="form-input" id="noteTitle" required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Content</label>
+                    <textarea class="form-input form-textarea" id="noteContent" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Due Date (Optional)</label>
+                    <input type="datetime-local" class="form-input" id="noteDueDate">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">Tags</label>
+                    <input type="text" class="form-input" id="noteTags" placeholder="work, personal, urgent (comma separated)">
+                </div>
+                
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" id="cancelNote">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="saveNote">Save Note</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button class="floating-action" id="fabNewNote">+</button>
+
+    <script>
+        class UnitionApp {
+            constructor() {
+                this.notes = JSON.parse(localStorage.getItem('unition_notes') || '[]');
+                this.deletedNotes = JSON.parse(localStorage.getItem('unition_deleted_notes') || '[]');
+                this.currentView = 'notes';
+                this.currentEditingId = null;
+                this.currentDate = new Date();
+                
+                this.initializeApp();
+                this.bindEvents();
+                this.renderNotes();
+                this.updateAIAnalysis();
+                this.renderCalendar();
+            }
+
+            initializeApp() {
+                // Load theme
+                const savedTheme = localStorage.getItem('unition_theme') || 'light';
+                document.body.setAttribute('data-theme', savedTheme);
+            }
+
+            bindEvents() {
+                // Navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        const view = e.currentTarget.getAttribute('data-view');
+                        this.switchView(view);
+                    });
+                });
+
+                // New note buttons
+                document.getElementById('newNoteBtn').addEventListener('click', () => this.openNoteModal());
+                document.getElementById('fabNewNote').addEventListener('click', () => this.openNoteModal());
+
+                // Modal events
+                document.getElementById('closeModal').addEventListener('click', () => this.closeNoteModal());
+                document.getElementById('cancelNote').addEventListener('click', () => this.closeNoteModal());
+                document.getElementById('noteForm').addEventListener('submit', (e) => this.saveNote(e));
+
+                // Search
+                document.getElementById('searchInput').addEventListener('input', (e) => {
+                    this.searchNotes(e.target.value);
+                });
+
+                // Theme selector
+                document.querySelectorAll('.theme-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        const theme = e.currentTarget.getAttribute('data-theme');
+                        this.changeTheme(theme);
+                    });
+                });
+
+                // Bin management
+                document.getElementById('viewBin').addEventListener('click', () => this.showBin());
+                document.getElementById('backToSettings').addEventListener('click', () => this.hideBin());
+                document.getElementById('emptyBin').addEventListener('click', () => this.emptyBin());
+
+                // Export
+                document.getElementById('exportNotes').addEventListener('click', () => this.exportNotes());
+
+                // Calendar navigation
+                document.getElementById('prevMonth').addEventListener('click', () => this.changeMonth(-1));
+                document.getElementById('nextMonth').addEventListener('click', () => this.changeMonth(1));
+            }
+
+            switchView(view) {
+                // Update navigation
+                document.querySelectorAll('.nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+                document.querySelector(`[data-view="${view}"]`).classList.add('active');
+
+                // Update content
+                document.querySelectorAll('.view-content').forEach(content => {
+                    content.style.display = 'none';
+                });
+                document.getElementById(`${view}View`).style.display = 'block';
+
+                this.currentView = view;
+
+                if (view === 'calendar') {
+                    this.renderCalendar();
+                }
+            }
+
+            openNoteModal(noteId = null) {
+                this.currentEditingId = noteId;
+                const modal = document.getElementById('noteModal');
+                const title = document.getElementById('modalTitle');
+                const form = document.getElementById('noteForm');
+
+                if (noteId) {
+                    const note = this.notes.find(n => n.id === noteId);
+                    title.textContent = 'Edit Note';
+                    document.getElementById('noteTitle').value = note.title;
+                    document.getElementById('noteContent').value = note.content;
+                    document.getElementById('noteDueDate').value = note.dueDate || '';
+                    document.getElementById('noteTags').value = note.tags ? note.tags.join(', ') : '';
+                } else {
+                    title.textContent = 'New Note';
+                    form.reset();
+                }
+
+                modal.classList.add('active');
+            }
+
+            closeNoteModal() {
+                document.getElementById('noteModal').classList.remove('active');
+                this.currentEditingId = null;
+            }
+
+            saveNote(e) {
+                e.preventDefault();
+                
+                const title = document.getElementById('noteTitle').value;
+                const content = document.getElementById('noteContent').value;
+                const dueDate = document.getElementById('noteDueDate').value;
+                const tags = document.getElementById('noteTags').value
+                    .split(',')
+                    .map(tag => tag.trim())
+                    .filter(tag => tag);
+
+                const noteData = {
+                    id: this.currentEditingId || Date.now().toString(),
+                    title,
+                    content,
+                    dueDate,
+                    tags,
+                    createdAt: this.currentEditingId ? 
+                        this.notes.find(n => n.id === this.currentEditingId).createdAt : 
+                        new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    completed: this.currentEditingId ? 
+                        this.notes.find(n => n.id === this.currentEditingId).completed : 
+                        false
+                };
+
+                if (this.currentEditingId) {
+                    const index = this.notes.findIndex(n => n.id === this.currentEditingId);
+                    this.notes[index] = noteData;
+                } else {
+                    this.notes.unshift(noteData);
+                }
+
+                this.saveToStorage();
+                this.renderNotes();
+                this.updateAIAnalysis();
+                this.closeNoteModal();
+            }
+
+            deleteNote(noteId) {
+                const noteIndex = this.notes.findIndex(n => n.id === noteId);
+                if (noteIndex !== -1) {
+                    const note = this.notes[noteIndex];
+                    note.deletedAt = new Date().toISOString();
+                    this.deletedNotes.unshift(note);
+                    this.notes.splice(noteIndex, 1);
+                    
+                    this.saveToStorage();
+                    this.renderNotes();
+                    this.updateAIAnalysis();
+                }
+            }
+
+            toggleComplete(noteId) {
+                const note = this.notes.find(n => n.id === noteId);
+                if (note) {
+                    note.completed = !note.completed;
+                    note.updatedAt = new Date().toISOString();
+                    this.saveToStorage();
+                    this.renderNotes();
+                    this.updateAIAnalysis();
+                }
+            }
+
+            restoreNote(noteId) {
+                const noteIndex = this.deletedNotes.findIndex(n => n.id === noteId);
+                if (noteIndex !== -1) {
+                    const note = this.deletedNotes[noteIndex];
+                    delete note.deletedAt;
+                    this.notes.unshift(note);
+                    this.deletedNotes.splice(noteIndex, 1);
+                    
+                    this.saveToStorage();
+                    this.renderBin();
+                }
+            }
+
+            permanentlyDelete(noteId) {
+                const noteIndex = this.deletedNotes.findIndex(n => n.id === noteId);
+                if (noteIndex !== -1) {
+                    this.deletedNotes.splice(noteIndex, 1);
+                    this.saveToStorage();
+                    this.renderBin();
+                }
+            }
+
+            renderNotes(notesToRender = null) {
+                const grid = document.getElementById('notesGrid');
+                const emptyState = document.getElementById('emptyState');
+                const notes = notesToRender || this.notes;
+
+                if (notes.length === 0) {
+                    grid.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                grid.style.display = 'grid';
+                emptyState.style.display = 'none';
+
+                grid.innerHTML = notes.map(note => {
+                    const dueDate = note.dueDate ? new Date(note.dueDate) : null;
+                    const isOverdue = dueDate && dueDate < new Date() && !note.completed;
+                    const dueDateText = dueDate ? 
+                        `Due: ${dueDate.toLocaleDateString()} ${dueDate.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit', hour12: true})}` : 
+                        '';
+
+                    return `
+                        <div class="note-card ${note.completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}" 
+                             style="${isOverdue ? 'border-left: 4px solid #dc2626;' : ''}">
+                            <div class="note-title">${note.title}</div>
+                            <div class="note-preview">${note.content}</div>
+                            <div class="note-meta">
+                                <div>
+                                    <div style="font-size: 11px; color: var(--text-secondary);">
+                                        ${new Date(note.createdAt).toLocaleDateString()}
+                                    </div>
+                                    ${dueDateText ? `<div style="font-size: 11px; color: ${isOverdue ? '#dc2626' : 'var(--text-secondary)'};">${dueDateText}</div>` : ''}
+                                    ${note.tags && note.tags.length > 0 ? 
+                                        `<div style="margin-top: 4px;">${note.tags.map(tag => 
+                                            `<span style="background: var(--primary); color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; margin-right: 4px;">${tag}</span>`
+                                        ).join('')}</div>` : ''}
+                                </div>
+                                <div class="note-actions">
+                                    <button class="action-btn" style="background: ${note.completed ? '#10b981' : '#6b7280'}; color: white;" 
+                                            onclick="app.toggleComplete('${note.id}')" title="${note.completed ? 'Mark incomplete' : 'Mark complete'}">
+                                        ${note.completed ? '✓' : '○'}
+                                    </button>
+                                    <button class="action-btn" style="background: var(--primary); color: white;" 
+                                            onclick="app.openNoteModal('${note.id}')" title="Edit">
+                                        ✏️
+                                    </button>
+                                    <button class="action-btn" style="background: #dc2626; color: white;" 
+                                            onclick="app.deleteNote('${note.id}')" title="Delete">
+                                        🗑️
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            renderBin() {
+                const grid = document.getElementById('binGrid');
+                const emptyState = document.getElementById('emptyBinState');
+
+                if (this.deletedNotes.length === 0) {
+                    grid.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    return;
+                }
+
+                grid.style.display = 'grid';
+                emptyState.style.display = 'none';
+
+                grid.innerHTML = this.deletedNotes.map(note => `
+                    <div class="note-card" style="opacity: 0.7;">
+                        <div class="note-title">${note.title}</div>
+                        <div class="note-preview">${note.content}</div>
+                        <div class="note-meta">
+                            <div style="font-size: 11px; color: var(--text-secondary);">
+                                Deleted: ${new Date(note.deletedAt).toLocaleDateString()}
+                            </div>
+                            <div class="note-actions" style="opacity: 1;">
+                                <button class="action-btn" style="background: #10b981; color: white;" 
+                                        onclick="app.restoreNote('${note.id}')" title="Restore">
+                                    ↩️
+                                </button>
+                                <button class="action-btn" style="background: #dc2626; color: white;" 
+                                        onclick="app.permanentlyDelete('${note.id}')" title="Delete Forever">
+                                    ❌
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            searchNotes(query) {
+                if (!query.trim()) {
+                    this.renderNotes();
+                    return;
+                }
+
+                const filteredNotes = this.notes.filter(note => 
+                    note.title.toLowerCase().includes(query.toLowerCase()) ||
+                    note.content.toLowerCase().includes(query.toLowerCase()) ||
+                    (note.tags && note.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase())))
+                );
+
+                this.renderNotes(filteredNotes);
+            }
+
+            updateAIAnalysis() {
+                this.updateFloatingAI();
+                this.updateProductivityMetrics();
+            }
+
+            updateFloatingAI() {
+                const floatingAI = document.getElementById('floatingAiContent');
+                const aiMetrics = this.calculateAIMetrics();
+                
+                let analysis = ``;
+                
+                if (aiMetrics.totalNotes === 0) {
+                    analysis = `🎯 <strong>Welcome to Unition!</strong><br>Create your first note to unlock AI-powered productivity insights and personalized recommendations.`;
+                } else {
+                    // Task status overview
+                    analysis += `📋 <strong>Tasks:</strong> ${aiMetrics.completedTasks} completed | ${aiMetrics.pendingTasks} pending | ${aiMetrics.overdueTasks} overdue | ${aiMetrics.dueTodayTasks} due today<br>`;
+                    
+                    // Performance metrics
+                    analysis += `📊 <strong>Performance:</strong> ${aiMetrics.productivityScore}% productivity ${this.getScoreEmoji(aiMetrics.productivityScore)} | `;
+                    analysis += `🧠 ${aiMetrics.focusScore}% focus ${this.getFocusEmoji(aiMetrics.focusScore)} | `;
+                    analysis += `🔥 ${aiMetrics.streak} day streak<br>`;
+                    
+                    // Priority alerts
+                    if (aiMetrics.dueTodayTasks > 0) {
+                        analysis += `🎯 <strong>Today's Priority:</strong> ${aiMetrics.dueTodayTasks} task${aiMetrics.dueTodayTasks > 1 ? 's' : ''} must be completed today<br>`;
+                    }
+                    if (aiMetrics.overdueTasks > 0) {
+                        analysis += `⚠️ <strong>Urgent:</strong> ${aiMetrics.overdueTasks} overdue task${aiMetrics.overdueTasks > 1 ? 's' : ''} need immediate attention<br>`;
+                    }
+                    
+                    // Smart insight
+                    analysis += `<br>${this.generateSmartInsight(aiMetrics)}`;
+                }
+
+                floatingAI.innerHTML = analysis;
+            }
+
+            calculateAIMetrics() {
+                const totalNotes = this.notes.length;
+                const completedTasks = this.notes.filter(n => n.completed).length;
+                const pendingTasks = this.notes.filter(n => !n.completed && n.dueDate).length;
+                
+                const now = new Date();
+                const today = new Date();
+                today.setHours(23, 59, 59, 999); // End of today
+                const todayStart = new Date();
+                todayStart.setHours(0, 0, 0, 0); // Start of today
+                
+                const last7Days = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                
+                const overdueTasks = this.notes.filter(n => {
+                    if (!n.dueDate || n.completed) return false;
+                    return new Date(n.dueDate) < todayStart;
+                }).length;
+
+                const dueTodayTasks = this.notes.filter(n => {
+                    if (!n.dueDate || n.completed) return false;
+                    const dueDate = new Date(n.dueDate);
+                    return dueDate >= todayStart && dueDate <= today;
+                }).length;
+
+                const weeklyActivity = this.notes.filter(n => new Date(n.createdAt) >= last7Days).length;
+                const dailyActivity = this.notes.filter(n => new Date(n.createdAt) >= last24Hours).length;
+                
+                const productivityScore = totalNotes > 0 ? Math.round((completedTasks / totalNotes) * 100) : 0;
+                
+                // Calculate focus score based on completion rate and consistency
+                const recentCompletions = this.notes.filter(n => 
+                    n.completed && new Date(n.updatedAt) >= last7Days
+                ).length;
+                const focusScore = weeklyActivity > 0 ? 
+                    Math.round(((recentCompletions / Math.max(weeklyActivity, 1)) * 100 + productivityScore) / 2) : 0;
+
+                // Calculate streak
+                const streak = this.calculateProductivityStreak();
+                
+                // Analyze work patterns
+                const workPatterns = this.analyzeWorkPatterns();
+
+                return {
+                    totalNotes,
+                    completedTasks,
+                    pendingTasks,
+                    overdueTasks,
+                    dueTodayTasks,
+                    weeklyActivity,
+                    dailyActivity,
+                    productivityScore,
+                    focusScore,
+                    streak,
+                    workPatterns,
+                    avgTasksPerDay: totalNotes > 0 ? (totalNotes / Math.max(this.getDaysActive(), 1)).toFixed(1) : 0
+                };
+            }
+
+            generateSmartInsight(metrics) {
+                const insights = [];
+                const now = new Date();
+                const hour = now.getHours();
+                
+                // Performance insights
+                if (metrics.productivityScore >= 90) {
+                    insights.push(`🏆 <strong>Exceptional performance!</strong> You're crushing your goals with ${metrics.productivityScore}% completion rate.`);
+                } else if (metrics.productivityScore >= 75) {
+                    insights.push(`🎯 <strong>Strong momentum!</strong> ${metrics.productivityScore}% completion rate puts you ahead of the curve.`);
+                } else if (metrics.overdueTasks > 0) {
+                    insights.push(`🚨 <strong>Action needed:</strong> ${metrics.overdueTasks} overdue task${metrics.overdueTasks > 1 ? 's' : ''} require immediate attention.`);
+                } else if (metrics.productivityScore >= 50) {
+                    insights.push(`📈 <strong>Building progress:</strong> ${metrics.productivityScore}% completion rate. Focus on finishing pending tasks.`);
+                } else {
+                    insights.push(`💪 <strong>Fresh start:</strong> Let's boost that ${metrics.productivityScore}% rate. Begin with your easiest task!`);
+                }
+
+                // Time-based insights
+                if (hour >= 6 && hour <= 10 && metrics.dailyActivity === 0) {
+                    insights.push(`🌅 <strong>Morning opportunity:</strong> Prime productivity window! Perfect time for important tasks.`);
+                } else if (hour >= 14 && hour <= 16 && metrics.dailyActivity < 2) {
+                    insights.push(`☀️ <strong>Afternoon focus:</strong> Great time to tackle pending items and build momentum.`);
+                } else if (metrics.dailyActivity >= 3) {
+                    insights.push(`⚡ <strong>High energy day:</strong> ${metrics.dailyActivity} notes created today. You're on fire!`);
+                }
+
+                // Streak insights
+                if (metrics.streak >= 7) {
+                    insights.push(`🔥 <strong>Incredible streak:</strong> ${metrics.streak} days of consistency! This is your superpower.`);
+                } else if (metrics.streak >= 3) {
+                    insights.push(`⚡ <strong>Building momentum:</strong> ${metrics.streak}-day streak growing strong. Keep it up!`);
+                }
+
+                return insights[Math.floor(Math.random() * insights.length)] || 
+                       `✨ <strong>Keep going:</strong> Every completed task brings you closer to your goals!`;
+            }
+
+            generateDynamicInsight(metrics) {
+                const insights = [];
+                
+                if (metrics.totalNotes === 0) {
+                    return `🎯 <strong>AI Starter Guide:</strong><br>Ready to boost your productivity? Create your first note and I'll provide personalized insights!`;
+                }
+
+                // Performance-based insights
+                if (metrics.productivityScore >= 90) {
+                    insights.push(`🏆 <strong>AI Recognition:</strong><br>Outstanding ${metrics.productivityScore}% completion rate! You're in the top productivity tier.`);
+                } else if (metrics.productivityScore >= 75) {
+                    insights.push(`🎯 <strong>AI Insight:</strong><br>Strong ${metrics.productivityScore}% performance! Consider tackling more challenging goals.`);
+                } else if (metrics.productivityScore >= 50) {
+                    insights.push(`📈 <strong>AI Coaching:</strong><br>Good ${metrics.productivityScore}% rate. Focus on completing ${metrics.pendingTasks} pending tasks.`);
+                } else if (metrics.overdueTasks > 0) {
+                    insights.push(`🚨 <strong>AI Alert:</strong><br>Critical: ${metrics.overdueTasks} overdue tasks need immediate attention!`);
+                } else {
+                    insights.push(`💪 <strong>AI Motivation:</strong><br>Let's improve that ${metrics.productivityScore}% rate. Start with your easiest task!`);
+                }
+
+                // Activity-based insights
+                if (metrics.dailyActivity >= 3) {
+                    insights.push(`⚡ <strong>AI Energy:</strong><br>High activity today (${metrics.dailyActivity} notes)! You're on fire!`);
+                } else if (metrics.weeklyActivity === 0 && metrics.totalNotes > 0) {
+                    insights.push(`😴 <strong>AI Nudge:</strong><br>No activity this week. Time to re-engage with your goals!`);
+                }
+
+                // Focus insights
+                if (metrics.focusScore >= 80) {
+                    insights.push(`🧠 <strong>AI Focus:</strong><br>Excellent ${metrics.focusScore}% focus score! Your concentration is paying off.`);
+                } else if (metrics.focusScore < 40) {
+                    insights.push(`🎯 <strong>AI Focus Tip:</strong><br>Low focus score (${metrics.focusScore}%). Try time-blocking or removing distractions.`);
+                }
+
+                return insights[Math.floor(Math.random() * insights.length)] || 
+                       `✨ <strong>AI Analysis:</strong><br>Keep building momentum! Every completed task brings you closer to your goals.`;
+            }
+
+            calculateProductivityStreak() {
+                if (this.notes.length === 0) return 0;
+                
+                let streak = 0;
+                const today = new Date();
+                let checkDate = new Date(today);
+                
+                for (let i = 0; i < 30; i++) { // Check last 30 days
+                    const dayStart = new Date(checkDate);
+                    dayStart.setHours(0, 0, 0, 0);
+                    const dayEnd = new Date(checkDate);
+                    dayEnd.setHours(23, 59, 59, 999);
+                    
+                    const hasActivity = this.notes.some(note => {
+                        const noteDate = new Date(note.createdAt);
+                        return noteDate >= dayStart && noteDate <= dayEnd;
+                    }) || this.notes.some(note => {
+                        if (!note.updatedAt || note.createdAt === note.updatedAt) return false;
+                        const updateDate = new Date(note.updatedAt);
+                        return updateDate >= dayStart && updateDate <= dayEnd;
+                    });
+                    
+                    if (hasActivity) {
+                        streak++;
+                    } else {
+                        break;
+                    }
+                    
+                    checkDate.setDate(checkDate.getDate() - 1);
+                }
+                
+                return streak;
+            }
+
+            analyzeWorkPatterns() {
+                const patterns = {
+                    peakHours: {},
+                    peakDays: {},
+                    avgSessionLength: 0,
+                    preferredTags: {}
+                };
+
+                this.notes.forEach(note => {
+                    const date = new Date(note.createdAt);
+                    const hour = date.getHours();
+                    const day = date.getDay(); // 0 = Sunday
+                    
+                    patterns.peakHours[hour] = (patterns.peakHours[hour] || 0) + 1;
+                    patterns.peakDays[day] = (patterns.peakDays[day] || 0) + 1;
+                    
+                    if (note.tags) {
+                        note.tags.forEach(tag => {
+                            patterns.preferredTags[tag] = (patterns.preferredTags[tag] || 0) + 1;
+                        });
+                    }
+                });
+
+                return patterns;
+            }
+
+            getDaysActive() {
+                const uniqueDays = new Set();
+                this.notes.forEach(note => {
+                    const date = new Date(note.createdAt);
+                    uniqueDays.add(date.toDateString());
+                });
+                return uniqueDays.size;
+            }
+
+            getScoreEmoji(score) {
+                if (score >= 90) return '🏆';
+                if (score >= 75) return '🎯';
+                if (score >= 50) return '📈';
+                if (score >= 25) return '⚡';
+                return '🔥';
+            }
+
+            getFocusEmoji(score) {
+                if (score >= 80) return '🧠';
+                if (score >= 60) return '🎯';
+                if (score >= 40) return '⚡';
+                return '💪';
+            }
+
+            generateAIInsights() {
+                // This method generates contextual insights based on user behavior
+                const metrics = this.calculateAIMetrics();
+                const insights = [];
+                
+                // Time-based insights
+                const now = new Date();
+                const hour = now.getHours();
+                
+                if (hour >= 6 && hour <= 10) {
+                    insights.push("🌅 Morning productivity window detected! Great time for important tasks.");
+                } else if (hour >= 14 && hour <= 16) {
+                    insights.push("☀️ Afternoon focus time! Perfect for completing pending items.");
+                } else if (hour >= 20 && hour <= 22) {
+                    insights.push("🌙 Evening planning session? Good time to organize tomorrow's tasks.");
+                }
+
+                return insights;
+            }
+
+            updateProductivityMetrics() {
+                // Advanced metrics calculation for detailed analysis
+                const metrics = this.calculateAIMetrics();
+                
+                // Store metrics for trend analysis
+                const today = new Date().toDateString();
+                let dailyMetrics = JSON.parse(localStorage.getItem('unition_daily_metrics') || '{}');
+                
+                dailyMetrics[today] = {
+                    productivityScore: metrics.productivityScore,
+                    focusScore: metrics.focusScore,
+                    totalNotes: metrics.totalNotes,
+                    completedTasks: metrics.completedTasks,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Keep only last 30 days
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                
+                Object.keys(dailyMetrics).forEach(date => {
+                    if (new Date(date) < thirtyDaysAgo) {
+                        delete dailyMetrics[date];
+                    }
+                });
+                
+                localStorage.setItem('unition_daily_metrics', JSON.stringify(dailyMetrics));
+            }
+
+            updateDetailedAIAnalysis() {
+                const detailedContent = document.getElementById('detailedAiContent');
+                const metrics = this.calculateAIMetrics();
+                const workPatterns = metrics.workPatterns;
+                const streak = metrics.streak;
+                
+                // Get historical data for trends
+                const dailyMetrics = JSON.parse(localStorage.getItem('unition_daily_metrics') || '{}');
+                const trendData = this.calculateTrends(dailyMetrics);
+                
+                // Advanced pattern analysis
+                const peakHour = Object.entries(workPatterns.peakHours)
+                    .sort(([,a], [,b]) => b - a)[0];
+                const peakDay = Object.entries(workPatterns.peakDays)
+                    .sort(([,a], [,b]) => b - a)[0];
+                
+                const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                const peakDayName = peakDay ? dayNames[peakDay[0]] : 'Not enough data';
+                const peakHourText = peakHour ? 
+                    `${this.formatHour(peakHour[0])} (${peakHour[1]} notes)` : 'Not enough data';
+
+                // Calculate advanced metrics
+                const avgNoteLength = metrics.totalNotes > 0 ? 
+                    Math.round(this.notes.reduce((sum, note) => sum + note.content.length, 0) / metrics.totalNotes) : 0;
+                
+                const topTags = Object.entries(workPatterns.preferredTags)
+                    .sort(([,a], [,b]) => b - a)
+                    .slice(0, 5);
+
+                // Calculate tag performance
+                const tagPerformance = this.calculateTagPerformance();
+                
+                // Generate comprehensive analysis
+                let analysis = `
+                    <h4>🧠 Advanced AI Intelligence Dashboard</h4>
+                    
+                    <!-- Performance Cards -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                        <div style="background: linear-gradient(135deg, #3b82f6, #1e40af); color: white; padding: 16px; border-radius: 12px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold;">${metrics.productivityScore}%</div>
+                            <div style="font-size: 12px; opacity: 0.9;">Productivity Score</div>
+                            <div style="font-size: 10px; margin-top: 4px;">${this.getPerformanceLabel(metrics.productivityScore)}</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #10b981, #047857); color: white; padding: 16px; border-radius: 12px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold;">${metrics.focusScore}%</div>
+                            <div style="font-size: 12px; opacity: 0.9;">Focus Score</div>
+                            <div style="font-size: 10px; margin-top: 4px;">${this.getFocusLabel(metrics.focusScore)}</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; padding: 16px; border-radius: 12px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold;">${streak}</div>
+                            <div style="font-size: 12px; opacity: 0.9;">Day Streak</div>
+                            <div style="font-size: 10px; margin-top: 4px;">${this.getStreakLabel(streak)}</div>
+                        </div>
+                        <div style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 16px; border-radius: 12px; text-align: center;">
+                            <div style="font-size: 24px; font-weight: bold;">${metrics.avgTasksPerDay}</div>
+                            <div style="font-size: 12px; opacity: 0.9;">Tasks/Day</div>
+                            <div style="font-size: 10px; margin-top: 4px;">${this.getVelocityLabel(metrics.avgTasksPerDay)}</div>
+                        </div>
+                    </div>
+
+                    <!-- AI Behavioral Analysis -->
+                    <h4>🔍 AI Behavioral Analysis</h4>
+                    <div style="background: var(--background); padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                            <div>
+                                <strong>⏰ Peak Performance</strong><br>
+                                • Best hour: ${peakHourText}<br>
+                                • Most active day: ${peakDayName}<br>
+                                • Current streak: ${streak} days<br>
+                                • Active days: ${this.getDaysActive()} total
+                            </div>
+                            <div>
+                                <strong>📊 Task Metrics</strong><br>
+                                • Completion rate: ${metrics.productivityScore}%<br>
+                                • Average length: ${avgNoteLength} chars<br>
+                                • Weekly velocity: ${metrics.weeklyActivity} notes<br>
+                                • Overdue items: ${metrics.overdueTasks}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category Intelligence -->
+                    <h4>🏷️ Category Intelligence</h4>
+                    ${topTags.length > 0 ? `
+                        <div style="background: var(--background); padding: 16px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                                ${topTags.map(([tag, count]) => {
+                                    const performance = tagPerformance[tag] || { completion: 0, avgTime: 0 };
+                                    return `
+                                        <div style="background: var(--surface); padding: 12px; border-radius: 8px; border-left: 4px solid var(--primary);">
+                                            <strong>${tag}</strong> (${count} notes)<br>
+                                            <small style="color: var(--text-secondary);">
+                                                Completion: ${performance.completion}%<br>
+                                                Performance: ${this.getTagPerformanceLabel(performance.completion)}
+                                            </small>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    ` : '<p style="color: var(--text-secondary); font-style: italic;">No tags detected. Start categorizing your notes for deeper insights!</p>'}
+
+                    <!-- AI Recommendations Engine -->
+                    <h4>🤖 AI Recommendations Engine</h4>
+                    ${this.generateAdvancedRecommendations(metrics, workPatterns, trendData)}
+
+                    <!-- Productivity Insights -->
+                    <div style="background: linear-gradient(135deg, #6366f1, #4f46e5); color: white; padding: 20px; border-radius: 12px; margin-top: 20px;">
+                        <h4 style="margin: 0 0 12px 0;">💡 AI Productivity Insights</h4>
+                        ${this.generateProductivityInsights(metrics, trendData)}
+                    </div>
+                `;
+
+                detailedContent.innerHTML = analysis;
+            }
+
+            calculateTrends(dailyMetrics) {
+                const dates = Object.keys(dailyMetrics).sort();
+                if (dates.length < 2) return { trend: 'stable', change: 0 };
+
+                const recent = dates.slice(-7); // Last 7 days
+                const older = dates.slice(-14, -7); // Previous 7 days
+
+                if (recent.length === 0) return { trend: 'stable', change: 0 };
+
+                const recentAvg = recent.reduce((sum, date) => 
+                    sum + dailyMetrics[date].productivityScore, 0) / recent.length;
+                const olderAvg = older.length > 0 ? 
+                    older.reduce((sum, date) => sum + dailyMetrics[date].productivityScore, 0) / older.length : recentAvg;
+
+                const change = recentAvg - olderAvg;
+                const trend = change > 5 ? 'improving' : change < -5 ? 'declining' : 'stable';
+
+                return { trend, change: Math.round(change), recentAvg: Math.round(recentAvg) };
+            }
+
+            calculateTagPerformance() {
+                const tagPerformance = {};
+                
+                Object.keys(this.notes.reduce((tags, note) => {
+                    if (note.tags) {
+                        note.tags.forEach(tag => tags[tag] = true);
+                    }
+                    return tags;
+                }, {})).forEach(tag => {
+                    const tagNotes = this.notes.filter(n => n.tags && n.tags.includes(tag));
+                    const completed = tagNotes.filter(n => n.completed).length;
+                    const completion = tagNotes.length > 0 ? Math.round((completed / tagNotes.length) * 100) : 0;
+                    
+                    tagPerformance[tag] = { completion, total: tagNotes.length };
+                });
+
+                return tagPerformance;
+            }
+
+            generateAdvancedRecommendations(metrics, patterns, trends) {
+                const recommendations = [];
+                const now = new Date();
+                const hour = now.getHours();
+
+                // Time-based recommendations
+                if (hour >= 6 && hour <= 10 && metrics.dailyActivity === 0) {
+                    recommendations.push({
+                        type: 'timing',
+                        priority: 'high',
+                        title: '🌅 Morning Opportunity',
+                        message: 'Prime productivity window! Start with your most important task.'
+                    });
+                }
+
+                // Performance-based recommendations
+                if (metrics.overdueTasks > 0) {
+                    recommendations.push({
+                        type: 'urgent',
+                        priority: 'critical',
+                        title: '🚨 Overdue Alert',
+                        message: `${metrics.overdueTasks} task${metrics.overdueTasks > 1 ? 's' : ''} need immediate attention.`
+                    });
+                }
+
+                // Trend-based recommendations
+                if (trends.trend === 'declining') {
+                    recommendations.push({
+                        type: 'improvement',
+                        priority: 'medium',
+                        title: '📉 Performance Dip',
+                        message: `Productivity down ${Math.abs(trends.change)}%. Consider reviewing your workflow.`
+                    });
+                } else if (trends.trend === 'improving') {
+                    recommendations.push({
+                        type: 'positive',
+                        priority: 'low',
+                        title: '📈 Great Progress',
+                        message: `Productivity up ${trends.change}%! Keep up the momentum.`
+                    });
+                }
+
+                // Focus recommendations
+                if (metrics.focusScore < 40) {
+                    recommendations.push({
+                        type: 'focus',
+                        priority: 'medium',
+                        title: '🎯 Focus Enhancement',
+                        message: 'Try the Pomodoro technique or eliminate distractions.'
+                    });
+                }
+
+                // Activity recommendations
+                if (metrics.weeklyActivity === 0 && metrics.totalNotes > 0) {
+                    recommendations.push({
+                        type: 'activity',
+                        priority: 'medium',
+                        title: '😴 Re-engagement Needed',
+                        message: 'No activity this week. Set a small, achievable goal to restart.'
+                    });
+                }
+
+                if (recommendations.length === 0) {
+                    recommendations.push({
+                        type: 'general',
+                        priority: 'low',
+                        title: '✨ Optimization',
+                        message: 'Great work! Consider exploring advanced productivity techniques.'
+                    });
+                }
+
+                return recommendations.map(rec => `
+                    <div style="background: var(--background); padding: 12px; border-radius: 8px; border-left: 4px solid ${
+                        rec.priority === 'critical' ? '#dc2626' : 
+                        rec.priority === 'high' ? '#f59e0b' : 
+                        rec.priority === 'medium' ? '#3b82f6' : '#10b981'
+                    }; margin-bottom: 8px;">
+                        <strong>${rec.title}</strong><br>
+                        <span style="color: var(--text-secondary); font-size: 14px;">${rec.message}</span>
+                    </div>
+                `).join('');
+            }
+
+            generateProductivityInsights(metrics, trends) {
+                const insights = [];
+                
+                // Performance insights
+                if (metrics.productivityScore >= 80) {
+                    insights.push(`🏆 You're in the top productivity tier with ${metrics.productivityScore}% completion rate!`);
+                } else if (metrics.productivityScore >= 60) {
+                    insights.push(`📈 Solid ${metrics.productivityScore}% performance. You're above average!`);
+                } else {
+                    insights.push(`💪 ${metrics.productivityScore}% completion rate has room for improvement. Focus on finishing tasks.`);
+                }
+
+                // Streak insights
+                if (metrics.streak >= 7) {
+                    insights.push(`🔥 Amazing ${metrics.streak}-day streak! Consistency is your superpower.`);
+                } else if (metrics.streak >= 3) {
+                    insights.push(`⚡ Good ${metrics.streak}-day streak building. Keep the momentum going!`);
+                } else if (metrics.streak === 0) {
+                    insights.push(`🎯 Ready to start a new productivity streak? Today is day one!`);
+                }
+
+                // Trend insights
+                if (trends.trend === 'improving') {
+                    insights.push(`📊 Your productivity trend is positive with ${trends.change}% improvement!`);
+                } else if (trends.trend === 'declining') {
+                    insights.push(`📉 Recent dip of ${Math.abs(trends.change)}% detected. Time to refocus and recover.`);
+                }
+
+                return insights.join('<br>• ');
+            }
+
+            formatHour(hour) {
+                const h = parseInt(hour);
+                const ampm = h >= 12 ? 'PM' : 'AM';
+                const displayHour = h % 12 || 12;
+                return `${displayHour}:00 ${ampm}`;
+            }
+
+            getPerformanceLabel(score) {
+                if (score >= 90) return 'Exceptional';
+                if (score >= 75) return 'Excellent';
+                if (score >= 60) return 'Good';
+                if (score >= 40) return 'Fair';
+                return 'Needs Focus';
+            }
+
+            getFocusLabel(score) {
+                if (score >= 80) return 'Laser Sharp';
+                if (score >= 60) return 'Focused';
+                if (score >= 40) return 'Moderate';
+                return 'Scattered';
+            }
+
+            getStreakLabel(streak) {
+                if (streak >= 30) return 'Legendary';
+                if (streak >= 14) return 'Strong';
+                if (streak >= 7) return 'Building';
+                if (streak >= 3) return 'Starting';
+                return 'Begin Today';
+            }
+
+            getVelocityLabel(velocity) {
+                const v = parseFloat(velocity);
+                if (v >= 5) return 'High Speed';
+                if (v >= 3) return 'Good Pace';
+                if (v >= 1) return 'Steady';
+                return 'Getting Started';
+            }
+
+            getTagPerformanceLabel(completion) {
+                if (completion >= 80) return 'Excellent';
+                if (completion >= 60) return 'Good';
+                if (completion >= 40) return 'Average';
+                return 'Needs Attention';
+            }
+
+            renderCalendar() {
+                const grid = document.getElementById('calendarGrid');
+                const monthHeader = document.getElementById('currentMonth');
+                
+                const year = this.currentDate.getFullYear();
+                const month = this.currentDate.getMonth();
+                
+                monthHeader.textContent = new Date(year, month).toLocaleDateString('en-US', { 
+                    month: 'long', 
+                    year: 'numeric' 
+                });
+
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const startDate = new Date(firstDay);
+                startDate.setDate(startDate.getDate() - firstDay.getDay());
+
+                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                let calendarHTML = days.map(day => 
+                    `<div style="font-weight: 600; text-align: center; padding: 8px; color: var(--text-secondary);">${day}</div>`
+                ).join('');
+
+                const today = new Date();
+                const currentDate = new Date(startDate);
+
+                for (let i = 0; i < 42; i++) {
+                    const isCurrentMonth = currentDate.getMonth() === month;
+                    const isToday = currentDate.toDateString() === today.toDateString();
+                    
+                    // Check if there are notes with due dates on this day
+                    const notesOnDay = this.notes.filter(note => {
+                        if (!note.dueDate) return false;
+                        const noteDate = new Date(note.dueDate);
+                        return noteDate.toDateString() === currentDate.toDateString();
+                    });
+
+                    const hasNotes = notesOnDay.length > 0;
+                    const hasOverdue = notesOnDay.some(note => !note.completed && new Date(note.dueDate) < new Date());
+
+                    calendarHTML += `
+                        <div class="calendar-day ${isToday ? 'today' : ''}" 
+                             style="
+                                 opacity: ${isCurrentMonth ? '1' : '0.3'};
+                                 ${hasNotes ? `background: ${hasOverdue ? '#dc2626' : 'var(--primary)'} !important; color: white !important;` : ''}
+                                 position: relative;
+                             "
+                             title="${hasNotes ? `${notesOnDay.length} task${notesOnDay.length > 1 ? 's' : ''} due` : ''}">
+                            ${currentDate.getDate()}
+                            ${hasNotes ? `<div style="position: absolute; top: 2px; right: 2px; width: 6px; height: 6px; background: white; border-radius: 50%;"></div>` : ''}
+                        </div>
+                    `;
+                    
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+
+                grid.innerHTML = calendarHTML;
+            }
+
+            changeMonth(direction) {
+                this.currentDate.setMonth(this.currentDate.getMonth() + direction);
+                this.renderCalendar();
+            }
+
+            changeTheme(theme) {
+                document.body.setAttribute('data-theme', theme);
+                localStorage.setItem('unition_theme', theme);
+                
+                // Update theme selector
+                document.querySelectorAll('.theme-option').forEach(option => {
+                    option.classList.remove('active');
+                });
+                document.querySelector(`[data-theme="${theme}"]`).classList.add('active');
+            }
+
+            showBin() {
+                document.querySelector('.settings-panel').classList.remove('active');
+                document.getElementById('binSection').classList.add('active');
+                this.renderBin();
+            }
+
+            hideBin() {
+                document.getElementById('binSection').classList.remove('active');
+                document.querySelector('.settings-panel').classList.add('active');
+            }
+
+            emptyBin() {
+                if (confirm('Are you sure you want to permanently delete all notes in the bin? This action cannot be undone.')) {
+                    this.deletedNotes = [];
+                    this.saveToStorage();
+                    this.renderBin();
+                }
+            }
+
+            exportNotes() {
+                const exportData = {
+                    notes: this.notes,
+                    deletedNotes: this.deletedNotes,
+                    exportDate: new Date().toISOString(),
+                    version: '1.0'
+                };
+
+                const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `unition-backup-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            saveToStorage() {
+                localStorage.setItem('unition_notes', JSON.stringify(this.notes));
+                localStorage.setItem('unition_deleted_notes', JSON.stringify(this.deletedNotes));
+            }
+        }
+
+        // Initialize the app
+        const app = new UnitionApp();
+
+        // Handle modal clicks outside content
+        document.getElementById('noteModal').addEventListener('click', (e) => {
+            if (e.target.id === 'noteModal') {
+                app.closeNoteModal();
+            }
+        });
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'n':
+                        e.preventDefault();
+                        app.openNoteModal();
+                        break;
+                    case 'f':
+                        e.preventDefault();
+                        document.getElementById('searchInput').focus();
+                        break;
+                }
+            }
+            
+            if (e.key === 'Escape') {
+                app.closeNoteModal();
+            }
+        });
+
+        // Auto-save functionality
+        let autoSaveTimeout;
+        document.getElementById('noteContent').addEventListener('input', () => {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                // Auto-save draft functionality could be implemented here
+                console.log('Auto-saving draft...');
+            }, 2000);
+        });
+
+        console.log('🚀 Unition Notes App loaded successfully!');
+        console.log('💡 Tip: Use Ctrl+N to create a new note, Ctrl+F to search');
+        console.log('🎨');
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98d68f67a0b67f89',t:'MTc2MDI3MTcyMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
